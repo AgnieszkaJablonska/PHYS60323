@@ -1,0 +1,278 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt]{article}
+\usepackage{epsfig}
+\usepackage{times}
+\usepackage{fancyhdr}
+\usepackage{pslatex}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[hidelinks]{hyperref}%renewcommand{\topfraction}{1.0}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+\setlength {\textwidth}{6.6in}
+\hoffset=-1.0in
+\oddsidemargin=1.00in
+\marginparsep=0.0in
+\marginparwidth=0.0in                                                                               
+\setlength {\textheight}{9.0in}
+\voffset=-1.00in
+\topmargin=1.0in
+\headheight=0.0in
+\headsep=0.00in
+\footskip=0.50in                                         
+\setcounter{page}{1}
+\begin{document}
+\def\pos{\medskip\quad}
+\def\subpos{\smallskip \qquad}
+\newfont{\nice}{cmr12 scaled 1250}
+\newfont{\name}{cmr12 scaled 1080}
+\newfont{\swell}{cmbx12 scaled 800}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     DO NOT CHANGE ANYTHING ABOVE THIS LINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     DO NOT CHANGE ANYTHING ABOVE THIS LINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     DO NOT CHANGE ANYTHING ABOVE THIS LINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+{\large
+PHYS 60323: Scientific Analysis \& Modeling - Fall 2024
+}\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\large Project: Agnieszka Jablonska}\\\vskip0.25in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section Heading
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent {\bf PROJECT INFORMATION:} \\
+
+
+\textbf{Project: Shielding a nuclear reactor. (AJ)}\\
+
+The purpose of this project is to find out how thick the wall of reactor should be in order to stop neutrons from escaping.
+The project uses a Monte Carlo simulation to simulate the random walk of the neutrons through the shield. For each trial, a movement of neutron is being tracked. It's needed to find the energy loss occurring in every step of the simulation. It is based on the type of step (neutron moving forward or being scatter). This simulation is repeated for a 1000 of neutrons to get reliable statistics of probabilities for neutrons as a function of the shield size D, to be back in reactor, captured in the shield or to get through the shield.  The result is probability of neutron escaping the shield as a function of the thickness of the wall. The second trial provides more reliable results than the first one, because in the second trial the initial neutron energy is taken as a Gaussian distribution, with the mean value of 750 steps and standard deviation of 75 steps. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section Heading
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip0.1in
+\noindent {\bf PURPOSE:} \\
+
+The purpose of this project is to find out how thick the wall of reactor should be in order to stop neutrons from escaping.
+A beam of neutrons bombards a reactor’s wall. 
+Considering motion of neutrons as a random walk on (x,y) plane find probabilities for neutrons (as a function of the shield size, D):
+\begin{enumerate}
+    \item to be back in the reactor;
+    \item to be ‘captured’ in the shield;
+    \item to get through the shield.\
+\end{enumerate}
+\begin{center}
+\textbf{First Trial Conditions:}
+\end{center}
+\begin{enumerate}
+    \item The initial conditions, the first step is forward 3 steps into the shield ($x_0$ = 0; $x_1$ = 3)
+    \item The future steps, the neutron cannot step back, only forward, up, or
+down, relative to its current motion. (ignore left or right for this
+problem.)
+    \item The probability to go “forward” (not scattered) is two times more than
+changing a direction (being scattered).
+    \item On each forward (non-scattered) move the neutron loses one unit of
+energy.
+    \item On each scatter (up or down), the neutron loses either 2.0 (60\%),
+4.0 (35\%), or 10.0 (5\%) units of energy.
+    \item Initial neutron energy is enough for 1500 units.
+    \item Initial neutron velocity is perpendicular to the shield (e.g., forward).
+\end{enumerate}
+It is needed to make an assumption, that the probability P to get through the shield has the asymptotic exponential dependence, determined as: \begin{align}
+    P \sim~ e^{-\alpha D}
+\end{align} where D is the size of the shield in
+units of x. Is is an arbitrary measurement of distance (thickness of the shield). e.g., a shield of size D = 15 would run from x = 0-15, and
+“infinite” in y.
+\begin{center}
+\textbf{Second Trial Conditions:}
+\end{center}
+ For this trial all of the parameters and methods used are the same as in trial first, except It is needed to consider initial neutron energy as a normal (Gaussian) distribution with a mean value of 750 steps, and a standard deviation of 75 steps.
+
+
+% Section Heading
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip0.1in
+\noindent {\bf PROCEDURE:} \\
+
+\begin{enumerate}
+    \item Starting with creating a Jupyter Notebook file using the Python script. 
+    \item Importing all needed libraries to solve this problem:
+    \begin{enumerate}
+        \item numpy, responsible for all the mathematical functions in Python;
+        \item matplotlib.pyplot, a library that generates plots as a result of simulations;
+        \item numpy.random, is a part of numpy, used to generate all the random numbers;
+        \item scipy.optimize, generates curve fits to get optimal values of $\alpha$.
+    \end{enumerate}
+
+
+A ‘particle’ class is created to track the particles in
+code. 
+The goal is to determine the exponent $\alpha$ by fitting the exponential to the resulting data.
+The shield’s size is being measured in ”steps”, where one step corresponds to
+an average distance that neutrons move between collisions. Also, it was needed to perform enough tests at each D to get a good measurement of $\alpha$ and its uncertainty)
+
+\item Generating all needed constants
+\begin{enumerate}
+    \item $x_0$=0 as initial position of neutron;
+    \item $x_1$=3 as position of neutron after the first step, where the first step is equal to 3 steps forward into the shield
+    \item The probability to go forward (not scattered) is two times more than changing a direction (being scattered). 2 * x + x = 1 \\
+    Solve for x:
+    x = $\frac{1}{3}$
+    \item Probability of not being scattered is 2 times greater than Probability of being scattered, so it is $\frac{2}{3}$
+    \item Setting initial neutron energy for 1500 units.
+    \item Setting number of neutrons as a 1000 to increase the number of simulations to get more accurate value for $\alpha$.
+    \item Defining numerical representation of the direction that the neutron is facing.
+\end{enumerate}
+    \item Defining all needed functions
+\begin{enumerate}
+        \item Defining exponential function to be fitted to test data as 
+ np.exp(x*$\alpha$).
+        \item Defining function to find and optimize parameters for the best value of $\alpha$. \\
+    Monte Carlo-version of 1 parameter Curve Fit for exponential function that can use both x and y errors. The function was defined as:
+mcFit1(func, x, y, $x_{err}=0.1$, $y_{err}=0.1$, p0=[1]).
+\end{enumerate}
+\item Defining neutron, function that describes energy loss and motion function:
+\begin{enumerate}
+    \item Making a class that's an object (Neutron) as a function of x and y direction, energy and direction neutron is facing: (self,x,y,E,Direction).
+    \item Creating function that describes energy loss of neutron.
+On each scatter (up or down), the neutron loses either 2.0 (60\%), 4.0 (35\%), or 10.0 (5\%) units of energy.\\
+So 60\% of generated numbers should be less than 0.60.\\
+35\% of numbers that I generate will be in range from 0.95 to 0.6.\\
+5\% of numbers will be in range from 1 to 0.95.
+    \item Setting up a function that describes motion of neutron: (number of steps). This function selects if the neutron is scattered or not. \\
+    If the neutron is scattered, is it scattered up or down.\\
+    And If the neutron is not being scattered function is picking the direction neutron is facing and moving forward. When neutron is facing positive x direction and it is moving 1 step forward. When neutron is facing negative x direction and it is moving 1 step forward (backwords in term of positive x).
+    When neutron is facing positive y direction and it is moving 1 step forward. When neutron is facing negative y direction and it is moving 1 step forward (backwords in term of positive y). Important thing is that on each scatter (up or down) the neutron loses one unit of energy.
+
+\end{enumerate}
+
+\item Running the First Trial:\\
+For the first trial one neutron at one time either gets out of the shield or loses all it's energy inside the shield, or goes back inside the reactor.
+For each thickness of shield 1000 neutrons are send through it. \\
+The result is present in Figure 1 in analysis part of this report.
+
+\item Running the Second Trial:\\
+For the second trial the process remains the same as in the first trial, however each neutron has differing initial energy based on Gaussian distribution. For each thickness of shield 1000 neutrons are send through it.
+The result is present in Figure 2 in analysis part of this report.
+
+
+    
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\noindent {\bf ANALYSIS (and math):} \\
+
+To calculate the statistical error of the values of $\alpha$ from two trials these three equations are used.\\
+This is equation describing the average probability value.
+
+\begin{equation}
+    <P> = \frac{1}{N} \sum_{i=1}^{N} P_i
+\end{equation}
+\indent{This is the average of the square of the probability.}
+\begin{equation}
+    <P^2> = \frac{1}{N} \sum_{i=1}^{N} P_i^2
+\end{equation}
+\indent{This is the statistical error of $\alpha$ from the two simulations.}
+\begin{equation}
+    \sigma = \sqrt{\frac{<P^2> - <P>^2}{N-1}}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section Heading
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip0.1in
+\noindent {\bf RESULTS:}\\
+\begin{enumerate}
+    \item \textbf{Results from the First Trial:}\\
+    Applying an exponential fit to the data points representing probabillity of escaping the reactor at each shield thickness to get the best value of $\alpha$ as:
+    \begin{center}
+        $\alpha = 0.0550 \pm 0.0031$
+    \end{center}
+    
+\begin{figure}[h!]
+\begin{center}
+\epsfig{file=First_Trial.png,width=10cm}
+\end{center}
+\caption{Probability of escape of neutron (Y axis) based on the thickness of the shield (X Axis). First Trial. All neutrons in this simulation start at the same initial energy of 1500 units. }
+\end{figure}
+
+\indent{This $\alpha$ value gives an exponential function that fits well the data from First Trial, as shown in figure 1.} 
+\clearpage
+
+
+    \item \textbf{Results from the Second Trial:}\\
+    Applying an exponential fit to the data points representing probabillity of escaping the reactor at each shield thickness to get the best value of $\alpha$ as:
+    \begin{center}
+        $\alpha = 0.060 \pm 0.0030$
+    \end{center}
+
+\begin{figure}[h!]
+\begin{center}
+\epsfig{file=Second_Trial.png,width=10cm}
+\end{center}
+\caption{Probability of escape of neutron (Y axis) based on the thickness of the shield (X Axis). Second Trial. All neutrons in this simulation start at an initial energy given from the Gaussian distribution, with a mean value of 750 units and a standard deviation of 75 steps. } 
+\end{figure}
+
+\end{enumerate}
+
+In Table 1 there are values of $\alpha$ parameter, the average probability $<P>$ and the average of the probability squared $<P^2>$ collected from two trials.
+
+
+\begin{center}
+Table 1. The values of $\alpha$ parameter, the average probability $<P>$ and the average of the probability squared $<P^2>$.
+
+\begin{tabular}{|c|c|c|}
+\hline
+            & Trial 1 & Trial 2 \\
+\hline
+$\alpha$   & $0.0550 \pm 0.0031 $ &  $0.060 \pm 0.0030 $   \\
+\hline
+$<P>$   & 0.01998  &  0.01745   \\
+\hline
+$<P^2>$   & 0.00977   &  0.00932   \\
+\hline
+\end{tabular}\vskip 0.2in
+\end{center}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section Heading
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip0.1in
+\noindent {\bf CONCLUSION:}\\
+
+The purpose of this project is to find out how thick the wall of reactor should be in order to stop neutrons from escaping.
+By using a Monte Carlo simulation to simulate the random walk of 1000 neutrons through the shield, the result is probability of neutron escaping the shield as a function of the thickness of the wall.\\
+
+The first trial shows that at a thickness D about 150 units neutrons are no longer escaping the reactor. \\
+For the second trial at a thickness D about 100 units neutrons are no longer escaping the reactor.
+
+The second trial provides more reliable results than the first one, because in the second trial the initial neutron energy is taken as a Gaussian distribution, with the mean value of 750 steps and standard deviation of 75 steps. It is more realistic talking about how neutrons behave compared to the first trial conditions.
+
+The value of parameter $\alpha$ is greater for the second trial compared to the first trial.
+
+The value of the average probability $<P>$ and the average of the probability squared $<P^2>$ is smaller for the second trial compared to the first trial.
+
+This is the result of the fact, the average energy in the second trial is always less than the initial energy used in the first trial. 
+The second trial provides better exponential fit to the data. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}
